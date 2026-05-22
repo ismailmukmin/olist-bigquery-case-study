@@ -1,0 +1,15 @@
+# npm files
+node_modules/
+package.json
+package-lock.json
+
+# VSCode settings
+.vscode/
+
+# Dataset files (too large for GitHub)
+datasets/*.csv
+datasets/*.xlsx
+
+# System files
+.DS_Store
+Thumbs.db
