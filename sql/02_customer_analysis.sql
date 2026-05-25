@@ -94,3 +94,10 @@ SELECT
 FROM customer_spend
 GROUP BY customer_state
 ORDER BY avg_clv DESC;
+
+/*
+INSIGHT TO LOOK FOR:
+- Which states have high CLV but low customer count? (underserved, high potential)
+- Which states have many customers but low CLV? (acquisition without retention)
+- Is SP (São Paulo) dominating, or are other states catching up?
+*/
