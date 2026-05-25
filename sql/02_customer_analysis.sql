@@ -58,3 +58,39 @@ INSIGHT TO LOOK FOR:
 - Is the returning customer count growing or flat?
 - Are there specific months where retention spikes? (post-campaign effect?)
 */
+
+-- ================================================================
+-- Q4: Customer Lifetime Value (CLV) by State
+-- ================================================================
+-- Business context:
+-- CLV by region helps prioritize where to invest in
+-- marketing, logistics, and customer success efforts.
+-- ================================================================
+
+WITH customer_spend AS (
+  SELECT
+    c.customer_unique_id,
+    c.customer_state,
+    COUNT(DISTINCT o.order_id)          AS total_orders,
+    ROUND(SUM(oi.price), 2)             AS total_spent,
+    MIN(o.order_purchase_timestamp)     AS first_purchase,
+    MAX(o.order_purchase_timestamp)     AS last_purchase
+  FROM `olist.customers` c
+  JOIN `olist.orders` o
+    ON c.customer_id = o.customer_id
+  JOIN `olist.order_items` oi
+    ON o.order_id = oi.order_id
+  WHERE o.order_status = 'delivered'
+  GROUP BY c.customer_unique_id, c.customer_state
+)
+
+SELECT
+  customer_state,
+  COUNT(DISTINCT customer_unique_id)          AS total_customers,
+  ROUND(AVG(total_spent), 2)                  AS avg_clv,
+  ROUND(AVG(total_orders), 2)                 AS avg_orders_per_customer,
+  ROUND(SUM(total_spent), 2)                  AS total_state_revenue,
+  RANK() OVER (ORDER BY AVG(total_spent) DESC) AS clv_rank
+FROM customer_spend
+GROUP BY customer_state
+ORDER BY avg_clv DESC;
