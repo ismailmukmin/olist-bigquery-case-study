@@ -51,3 +51,10 @@ SELECT
 FROM customer_segmented
 GROUP BY year_month, customer_type
 ORDER BY year_month, customer_type;
+
+/*
+INSIGHT TO LOOK FOR:
+- What % of monthly customers are returning? (retention rate)
+- Is the returning customer count growing or flat?
+- Are there specific months where retention spikes? (post-campaign effect?)
+*/
