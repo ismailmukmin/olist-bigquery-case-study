@@ -61,3 +61,38 @@ SELECT
 FROM seller_metrics
 ORDER BY revenue_rank
 LIMIT 20;
+
+/*
+INSIGHT TO LOOK FOR:
+- Do top revenue sellers also have high review scores?
+- Is there a correlation between delivery speed and review score?
+- Which states produce the top sellers?
+*/
+
+-- ================================================================
+-- Q6: Seller Activity Trend Over Time
+-- ================================================================
+-- Business context:
+-- Tracking how many active sellers operate each month shows
+-- marketplace health and supply-side growth.
+-- ================================================================
+
+SELECT
+  FORMAT_DATE('%Y-%m', o.order_purchase_timestamp) AS year_month,
+  COUNT(DISTINCT oi.seller_id)                      AS active_sellers,
+  COUNT(DISTINCT oi.order_id)                       AS total_orders,
+  ROUND(SUM(oi.price), 2)                           AS total_revenue,
+  ROUND(SUM(oi.price) / COUNT(DISTINCT oi.seller_id), 2) AS avg_revenue_per_seller
+FROM `olist.order_items` oi
+JOIN `olist.orders` o
+  ON oi.order_id = o.order_id
+WHERE o.order_status = 'delivered'
+GROUP BY year_month
+ORDER BY year_month;
+
+/*
+INSIGHT TO LOOK FOR:
+- Is seller count growing month over month?
+- Does avg revenue per seller increase as more sellers join? (market saturation?)
+- Are there months where seller count drops? (investigate churn)
+*/
