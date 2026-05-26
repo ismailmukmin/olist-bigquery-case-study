@@ -11,3 +11,53 @@ QUESTIONS:
   Q6 — What is seller activity trend over time?
 =================================================================
 */
+
+
+-- ================================================================
+-- Q5: Top Performing Sellers
+-- ================================================================
+-- Business context:
+-- Identifying top sellers helps replicate their success patterns
+-- and build better seller onboarding and support programs.
+-- ================================================================
+
+WITH seller_metrics AS (
+  SELECT
+    oi.seller_id,
+    s.seller_state,
+    COUNT(DISTINCT oi.order_id)                     AS total_orders,
+    COUNT(DISTINCT oi.product_id)                   AS unique_products,
+    ROUND(SUM(oi.price), 2)                         AS total_revenue,
+    ROUND(AVG(oi.price), 2)                         AS avg_item_price,
+    ROUND(AVG(r.review_score), 2)                   AS avg_review_score,
+    ROUND(AVG(
+      DATE_DIFF(
+        DATE(o.order_delivered_customer_date),
+        DATE(o.order_purchase_timestamp),
+        DAY
+      )
+    ), 1)                                           AS avg_delivery_days
+  FROM `olist.order_items` oi
+  JOIN `olist.orders` o
+    ON oi.order_id = o.order_id
+  JOIN `olist.sellers` s
+    ON oi.seller_id = s.seller_id
+  LEFT JOIN `olist.reviews` r
+    ON o.order_id = r.order_id
+  WHERE o.order_status = 'delivered'
+  GROUP BY oi.seller_id, s.seller_state
+)
+
+SELECT
+  seller_id,
+  seller_state,
+  total_orders,
+  unique_products,
+  total_revenue,
+  avg_item_price,
+  avg_review_score,
+  avg_delivery_days,
+  RANK() OVER (ORDER BY total_revenue DESC) AS revenue_rank
+FROM seller_metrics
+ORDER BY revenue_rank
+LIMIT 20;
