@@ -88,3 +88,10 @@ GROUP BY category
 HAVING total_orders >= 50
 ORDER BY avg_order_value DESC
 LIMIT 20;
+
+/*
+INSIGHT TO LOOK FOR:
+- Which categories have the highest AOV? (premium categories)
+- Which categories have high stddev? (wide price range = diverse products)
+- Where should promotions focus to move the AOV needle?
+*/
