@@ -44,3 +44,47 @@ FROM order_status_by_category
 WHERE total_orders >= 50  -- filter out low-volume categories
 ORDER BY cancellation_rate_pct DESC
 LIMIT 15;
+
+/*
+INSIGHT TO LOOK FOR:
+- Which categories consistently have >5% cancellation rate?
+- Are high-cancellation categories also low-review-score categories?
+- Are these categories worth investing in or cutting?
+*/
+
+-- ================================================================
+-- Q8: Average Order Value (AOV) by Product Category
+-- ================================================================
+-- Business context:
+-- AOV by category helps pricing strategy, promotion design,
+-- and understanding which categories drive basket size.
+-- ================================================================
+
+WITH category_orders AS (
+  SELECT
+    o.order_id,
+    COALESCE(ct.string_field_1, p.product_category_name, 'Unknown') AS category,
+    SUM(oi.price + oi.freight_value)                                  AS order_value
+  FROM `olist.orders` o
+  JOIN `olist.order_items` oi
+    ON o.order_id = oi.order_id
+  JOIN `olist.products` p
+    ON oi.product_id = p.product_id
+  LEFT JOIN `olist.category_translation` ct
+    ON p.product_category_name = ct.string_field_0
+  WHERE o.order_status = 'delivered'
+  GROUP BY o.order_id, category
+)
+
+SELECT
+  category,
+  COUNT(order_id)               AS total_orders,
+  ROUND(AVG(order_value), 2)    AS avg_order_value,
+  ROUND(MIN(order_value), 2)    AS min_order_value,
+  ROUND(MAX(order_value), 2)    AS max_order_value,
+  ROUND(STDDEV(order_value), 2) AS stddev_order_value
+FROM category_orders
+GROUP BY category
+HAVING total_orders >= 50
+ORDER BY avg_order_value DESC
+LIMIT 20;
