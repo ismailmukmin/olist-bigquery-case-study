@@ -128,3 +128,10 @@ SELECT
 FROM bucketed
 GROUP BY delivery_bucket, delivery_vs_estimate
 ORDER BY delivery_bucket, delivery_vs_estimate;
+
+/*
+INSIGHT TO LOOK FOR:
+- Does avg review score drop sharply after 10 days? (satisfaction cliff)
+- Do early deliveries consistently get 5-star reviews?
+- Is being late (vs estimate) more damaging than being slow overall?
+*/
